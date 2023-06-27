@@ -1,16 +1,6 @@
 import cv2
 import mediapipe as mp
-import socket
 
-HOST = '127.0.0.1'  # Dirección IP del servidor
-PORT = 12345  # Puerto utilizado para la comunicación
-
-# Crea un socket TCP/IP
-client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-# Conecta al servidor
-client_socket.connect((HOST, PORT))
-print('Conexión establecida con el servidor')
 
 def detect_hand_raised(hand_landmarks):
     # Obtiene las coordenadas de la muñeca y las puntas de los dedos de la mano derecha e izquierda
@@ -49,25 +39,23 @@ def main():
         image_output = frame.copy()
         if results.multi_hand_landmarks:
             for hand_landmarks in results.multi_hand_landmarks:
-                # Cambiar el color de las líneas a verde y los puntos a rojo
-                landmark_color = (0, 0, 255)  # Color rojo (BGR)
-                connection_color = (0, 255, 0)  # Color verde (BGR)
+                landmark_color = (0, 0, 255)  
+                connection_color = (0, 255, 0)  
                 mp_drawing.draw_landmarks(image_output, hand_landmarks, mp_hands.HAND_CONNECTIONS,
                                           landmark_drawing_spec=mp_drawing.DrawingSpec(color=landmark_color, thickness=2,
                                                                                          circle_radius=3),
                                           connection_drawing_spec=mp_drawing.DrawingSpec(color=connection_color, thickness=2))
-
                 data_to_send = detect_hand_raised(hand_landmarks)
-                client_socket.sendall(data_to_send.encode())
+                f = open ('file.txt','w')
+                f.write(data_to_send)
+                f.close()
 
         # Muestra la imagen resultante
-        cv2.imshow('Hands Detection', image_output)
+        cv2.imshow('Controller VideoGame', image_output)
         key = cv2.waitKey(1) & 0xFF
         if key == 27:
             break
 
-    # Cierra la conexión con el servidor
-    client_socket.close()
     cap.release()
     cv2.destroyAllWindows()
 
